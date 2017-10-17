@@ -4,9 +4,24 @@
 		public static void main( String[] args) {
 			
 			while (true) {
+				System.out.println( "Enter a number: (Enter 'exit' to exit)");
+				
 				Scanner scanner = new Scanner( System.in);
 				String str = scanner.next();
 			
+				if (str.equals("exit"))
+					System.exit(0);
+				
+				System.out.println( "Enter a desired type:");
+				String desiredType = scanner.next();
+				if (!desiredType.equals("byte")  && !desiredType.equals("short")  
+						&& !desiredType.equals("int") && !desiredType.equals("long") 
+						&& !desiredType.equals("float")  && !desiredType.equals("double") )
+				{
+					desiredType = "";
+					System.out.println(	"This is not a valid type");
+				}
+				
 				Boolean negative = false;
 				if (str.indexOf("-") == 0)
 				{
@@ -46,11 +61,76 @@
 				String binaryIntPart = tempStr + intPart2Binary( intPart);
 				//System.out.println( binaryIntPart);
 				
+				String binaryDecPart = decPart2Binary( decPart);
+				
 				if (!negative) {
-					System.out.print( "0b");
+					if (decPart == 0) {
+					System.out.print( intPart + " = ");
+					
+					String type = "";
+					
+					if (intPart >= -128 && intPart <= 127)
+						type = "byte";
+					else if (intPart >= -32768 && intPart <= 32767)
+						type = "short";
+					else if (intPart >= -2147483648 && intPart <= 2147483647)
+						type = "int";
+					else
+						type = "long";
+					
+					switch (desiredType) {
+					case "byte":
+						if (!(intPart >= -128 && intPart <= 127))
+							desiredType = type;
+						break;
+					case "short":
+						if (!(intPart >= -32768 && intPart <= 32767))
+							desiredType = type;
+						break;
+					case "int":
+						if (!(intPart >= -2147483648 && intPart <= 2147483647))
+							desiredType = type;
+						break;
+						
+					case "float":
+							desiredType = type;
+						break;
+						
+					case "double":
+							desiredType = type;
+						break;
+					}
+					
+					if (desiredType.equals(""))
+						desiredType = type;
+					
+					System.out.print( "(" + desiredType + ")");
+					
+					String tempStr2 = "";
+					switch (desiredType) {
+					case "byte":
+						for (int i = 0; i < 8 - binaryIntPart.length(); i++)
+							tempStr2 += "0";
+						break;
+					case "short":
+						for (int i = 0; i < 16 - binaryIntPart.length(); i++)
+							tempStr2 += "0";
+						break;
+					case "int":
+						for (int i = 0; i < 32 - binaryIntPart.length(); i++)
+							tempStr2 += "0";
+						break;
+					case "long":
+						for (int i = 0; i < 64 - binaryIntPart.length(); i++)
+							tempStr2 += "0";
+						break;
+					}
+					
+					tempStr2 += binaryIntPart;
+					binaryIntPart = tempStr2;
 					
 					for (int i = 0; i < binaryIntPart.length(); i++)
-						if (i % 4 != 0)
+						if (i % 8 != 0)
 							System.out.print( binaryIntPart.charAt(i));
 						else
 						{
@@ -58,11 +138,60 @@
 							System.out.print( binaryIntPart.charAt(i));
 						}
 					
+					System.out.print(", 0x" + binary2Base16( binaryIntPart));
+					
+					
+				}
 					if (decPart != 0) {
+						System.out.print( intPart + "." + decPart + " = ");
+						
+						String type = "";
+						
+							if (intPart >= Float.MIN_VALUE && intPart <= Float.MAX_VALUE)
+								type = "float";
+							else
+								type = "double";
+							
+							
+							if (!(intPart >= Float.MIN_VALUE && intPart <= Float.MAX_VALUE))
+								desiredType = type;
+						
+						if (desiredType.equals(""))
+							desiredType = type;
+						
+						if (!desiredType.equals("float") && !desiredType.equals("double"))
+							desiredType = type;
+						
+						System.out.print( "(" + desiredType + ")");
+						
+						String tempStr2 = "";
+						switch (desiredType) {
+						case "float":
+							for (int i = 0; i < 32 - binaryIntPart.length(); i++)
+								tempStr2 += "0";
+							break;
+						case "double":
+							for (int i = 0; i < 64 - binaryIntPart.length(); i++)
+								tempStr2 += "0";
+							break;
+						}
+						
+						tempStr2 += binaryIntPart;
+						binaryIntPart = tempStr2;
+						
+						for (int i = 0; i < binaryIntPart.length(); i++)
+							if (i % 8 != 0)
+								System.out.print( binaryIntPart.charAt(i));
+							else
+							{
+								System.out.print(" ");
+								System.out.print( binaryIntPart.charAt(i));
+							}
+						
 						System.out.print( ".");
 					
 						for (int i = 0; i < decPart2Binary( decPart).length(); i++)
-							if (i % 4 != 0)
+							if (i % 8 != 0)
 								System.out.print( decPart2Binary( decPart).charAt(i));
 							else
 							{
@@ -73,7 +202,10 @@
 					
 				} else {
 					
-					System.out.print( "-0b" + negativeNum2Binary( intPart, decPart));
+					if (decPart == 0)
+						System.out.print( "-" + intPart + " =" + negativeNum2Binary( intPart, decPart) + ", -0x" + binary2Base16( binaryIntPart));
+					else
+						System.out.print( "-" + intPart + "." + decPart + " =" + negativeNum2Binary( intPart, decPart));
 				}
 				
 				System.out.println();
@@ -159,7 +291,7 @@
 			String fullDec = "";
 			
 			for (int i = 0; i < invertedStrIntPart.length(); i++)
-				if (i % 4 != 0)
+				if (i % 8 != 0)
 					fullInt += invertedStrIntPart.charAt(i);
 				else
 				{
@@ -168,7 +300,7 @@
 				}
 			
 			for (int i = 0; i < invertedStrDecPart.length(); i++)
-				if (i % 4 != 0)
+				if (i % 8 != 0)
 					fullDec += invertedStrDecPart.charAt(i);
 				else
 				{
@@ -177,9 +309,76 @@
 				}
 			
 			if (decPart != 0)
-				return fullInt + "." + fullDec;
+				return fullInt + "." + fullDec + "...";
 			else
 				return fullInt;
+		}
+		
+		public static String binary2Base16(String binary) {
+			
+			String str = "";
+			String tempStr = "";
+			
+			for (int i = 0; i < binary.length() / 4; i++) {
+				if (!binary.substring(i*4, i*4 + 4).equals("0000"))
+					tempStr += binary.substring(i*4, i*4 + 4);
+			}
+			binary = tempStr;
+			
+			for (int i = 0; i < binary.length() / 4; i++) {
+				switch (binary.substring(i*4, i*4 + 4)) {
+				case "0000" :
+					str += "0";
+					break;
+				case "0001" :
+					str += "1";
+					break;
+				case "0010" :
+					str += "2";
+					break;
+				case "0011" :
+					str += "3";
+					break;
+				case "0100" :
+					str += "4";
+					break;
+				case "0101" :
+					str += "5";
+					break;
+				case "0110" :
+					str += "6";
+					break;
+				case "0111" :
+					str += "7";
+					break;
+				case "1000" :
+					str += "8";
+					break;
+				case "1001" :
+					str += "9";
+					break;
+				case "1010" :
+					str += "A";
+					break;
+				case "1011" :
+					str += "B";
+					break;
+				case "1100" :
+					str += "C";
+					break;
+				case "1101" :
+					str += "D";
+					break;
+				case "1110" :
+					str += "E";
+					break;
+				case "1111" :
+					str += "F";
+					break;
+				}
+			}
+			
+			return str;
 		}
 		
 		
